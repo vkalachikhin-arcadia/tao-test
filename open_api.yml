@@ -1,0 +1,84 @@
+openapi: 3.0.0
+info:
+  title: 'Assessment API'
+  description: 'Assessment API'
+  version: v1
+paths:
+  /questions:
+    get:
+      description: 'Returns the list of translated questions and associated choices'
+      operationId: 'App\Controller\QuestionsController::getQuestions'
+      parameters:
+        -
+          name: lang
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'List of translated questions and associated choices'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionList'
+        '400':
+          description: 'Empty response in case something goes wrong with retrieving data from repository'
+    post:
+      summary: 'Creates a new question and associated choices (the number of associated choices must be exactly equal to 3)'
+      operationId: 'App\Controller\QuestionsController::addQuestion'
+      requestBody:
+        request: Question
+        description: 'Question and associated choices'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Question'
+      responses:
+        '200':
+          description: 'Question and associated choices (not translated)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+        '400':
+          description: 'Response in case something goes wrong while saving data to repository'
+          content:
+            application/json:
+              schema:
+                type: string
+        '406':
+          description: 'Response in case something user has provided data which did not pass validation'
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas:
+    Choice:
+      required:
+        - text
+      properties:
+        text:
+          type: string
+      type: object
+    Question:
+      properties:
+        text:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        choices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Choice'
+      type: object
+    QuestionList:
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
+      type: object
